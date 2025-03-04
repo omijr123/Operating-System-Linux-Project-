@@ -1,0 +1,251 @@
+#!/bin/bash
+
+# Welcome Message
+echo "_____________________________Welcome TO RAHMAN FAST FOOD RESTAURANT ______________________________"
+echo "______________________________________________________________________________________________________"
+echo "______________________________________________MENU ITEM_______________________________________________"
+echo " Item No_________FOOD Name_________________Size____________________________Price_____"
+echo "   1          Chicken pot pie           6/8/10/12 inches                150/170/200/250 Tk"
+echo "   2          Mashed potatoes           100/200/300/400 g               100/120/150/200 Tk"
+echo "   3          Fried chicken             150/200/250 g                   150/170/200 Tk"
+echo "   4          Burgers                   chicken/egg/vegetables          150/50/40 Tk"
+echo "   5          Chicken soup              150/250/300 g                   70/120/150 Tk"
+echo "   6          Coke                      250/500/1/2 L                   30/50/80/120 Tk"
+echo "   7          Coffee                    200 mL                          50/60 Tk"
+echo "   8          Cake                      1/2/2.5/3/4 pound               120/170/220/260/300 Tk"
+echo "   9          French fries              150/200/250/300 g               50/70/100/130 Tk"
+echo "  10         Bread sticks              150/200/250/350 g               70/100/120/170 Tk"
+
+echo "Do you want to order (yes=1/no=2): "
+read user_input
+
+if [ "$user_input" -eq 1 ]; then
+    # Collect Customer Details
+    read -p "Please Enter your name: " name
+    read -p "Please Enter your address: " address
+    read -p "Please Enter your phone number: " phone_number
+    read -p "Please Enter your email: " email
+
+    # Order Process
+    echo "Please enter item number:"
+    read item_no
+
+    case $item_no in
+        1) item_name="Chicken pot pie";;
+        2) item_name="Mashed potatoes";;
+        3) item_name="Fried chicken";;
+        4) item_name="Burgers";;
+        5) item_name="Chicken soup";;
+        6) item_name="Coke";;
+        7) item_name="Coffee";;
+        8) item_name="Cake";;
+        9) item_name="French fries";;
+        10) item_name="Bread sticks";;
+        *) echo "Invalid item selected"; exit 1;;
+    esac
+
+    echo "Please choose the size:" # Add size selection per item here...
+    read size_choice
+    case $item_no in
+        1)
+            case $size_choice in
+                1) price=150;;
+                2) price=170;;
+                3) price=200;;
+                4) price=250;;
+                *) echo "Invalid size"; exit 1;;
+            esac
+            ;;
+        # Add similar cases for other items
+    esac
+
+    read -p "How many $item_name do you want to order? " quantity
+
+    # Real-Time Inventory Check
+    declare -A inventory
+    inventory=( [1]=50 [2]=100 [3]=70 [4]=60 [5]=80 [6]=200 [7]=150 [8]=30 [9]=100 [10]=90 )
+
+    if [ "${inventory[$item_no]}" -ge "$quantity" ]; then
+        inventory[$item_no]=$((inventory[$item_no] - quantity))
+        echo "Inventory updated. Remaining ${item_name}s: ${inventory[$item_no]}"
+    else
+        echo "Sorry, insufficient inventory for $item_name. Only ${inventory[$item_no]} left."
+        exit 1
+    fi
+
+    # Calculate Total Price
+    total_price=$((price * quantity))
+    if (( total_price > 1000 )); then
+        discount=$(( total_price / 10 ))
+        total_price=$(( total_price - discount ))
+        echo "10% discount applied! Total price: $total_price Tk"
+    fi
+
+    # Gift Wrapping
+    read -p "Do you want gift wrapping? (yes=1/no=2): " gift_choice
+    if [ "$gift_choice" -eq 1 ]; then
+        read -p "Enter occasion (e.g., Birthday, Anniversary): " occasion
+        wrapping_charge=50
+        total_price=$((total_price + wrapping_charge))
+        echo "Gift wrapping charge added. Updated total price: $total_price Tk"
+    fi
+
+    # Customization
+    read -p "Do you want to customize your order? (yes=1/no=2): " custom_choice
+    if [ "$custom_choice" -eq 1 ]; then
+        echo "Available Customizations: 1=Extra Toppings (50 Tk), 2=Less Salt, 3=Extra Spicy, 4=Add Cheese (30 Tk)"
+        read -p "Choose your customization: " custom_option
+        case $custom_option in
+            1) total_price=$((total_price + 50)); echo "Added Extra Toppings (50 Tk)";;
+            2) echo "Selected Less Salt";;
+            3) echo "Selected Extra Spicy";;
+            4) total_price=$((total_price + 30)); echo "Added Cheese (30 Tk)";;
+            *) echo "Invalid customization";;
+        esac
+    fi
+
+ # Payment method section
+    echo "Please choose a payment method: 1=Cash, 2=Card, 3=Online Payment"
+    read payment_method
+    case $payment_method in
+        1) echo "You chose cash payment."; payment_mode="Cash";;
+        2) echo "You chose card payment."; payment_mode="Card";;
+        3) echo "You chose online payment."; payment_mode="Online";;
+        *) echo "Invalid choice"; exit 1;;
+    esac
+    # Save Order
+    echo "$name,____$address,____$phone_number,____$email,____$item_name,____$total_price" >> restaurant.txt
+
+    # Feedback
+    read -p "Would you like to provide feedback? (yes=1/no=2): " feedback_choice
+    if [ "$feedback_choice" -eq 1 ]; then
+        read -p "Please enter your feedback: " feedback
+        echo "$name: $feedback" >> feedback.txt
+        echo "Thank you for your feedback!"
+    fi
+
+    # Export Receipt to PDF
+    echo "Generating receipt as PDF..."
+    echo "$name, $address, $phone_number, $email, $item_name, $total_price" > receipt.txt
+    pandoc receipt.txt -o receipt.pdf
+    echo "Receipt saved as receipt.pdf"
+ # Order Cancellation Section
+    read -p "Do you want to cancel your last order? (yes=1/no=2): " cancel_choice
+    if [ "$cancel_choice" -eq 1 ]; then
+        tail -n 1 restaurant.txt > cancelled_order.txt
+        sed -i '$d' restaurant.txt
+        echo "Your last order has been canceled. Details of the canceled order are saved in 'cancelled_order.txt'."
+    else
+        echo "Proceeding without cancellation."
+    fi
+
+    # Table Reservation System
+    read -p "Do you want to reserve a table? (yes=1/no=2): " reserve_choice
+    if [ "$reserve_choice" -eq 1 ]; then
+        read -p "Enter your name: " customer_name
+        read -p "Enter number of guests: " num_guests
+        read -p "Enter reservation date (YYYY-MM-DD): " res_date
+        read -p "Enter reservation time (HH:MM): " res_time
+        echo "$customer_name, $num_guests guests, $res_date, $res_time" >> reservations.txt
+        echo "Your table reservation is confirmed for $num_guests guests on $res_date at $res_time."
+    else
+        echo "No table reservation made."
+    fi
+
+    # Order Status Tracking
+    echo "Your order is being prepared..."
+    sleep 5 # Simulating preparation time
+    echo "Order status: Ready for pickup/delivery."
+    sleep 2 # Simulating readiness time
+    echo "Order status: Delivered. Enjoy your meal!"
+
+    # Estimated Delivery Time
+    echo "Estimated delivery time: 30 minutes for nearby locations."
+
+    # Order History
+    read -p "Do you want to view your order history? (yes=1/no=2): " history_choice
+    if [ "$history_choice" -eq 1 ]; then
+        read -p "Enter your phone number or email to retrieve history: " contact_info
+        grep "$contact_info" restaurant.txt || echo "No history found for $contact_info"
+    fi
+
+else
+    echo "Thank you! Have a great day!"
+    exit 0
+fi
+
+# Admin Panel
+read -sp "Enter admin password to access admin panel: " admin_password
+if [ "$admin_password" == "admin123" ]; then
+    echo "Welcome, Admin!"
+    echo "1. View all orders"
+    echo "2. View feedback"
+    echo "3. View total sales"
+    echo "4. Employee Management"
+    echo "5. Feedback Analysis"
+    read -p "Choose an option: " admin_choice
+    case $admin_choice in
+        1) cat restaurant.txt;;
+        2) cat feedback.txt;;
+        3) awk -F, '{total += $6} END {print "Total Sales: " total " Tk"}' restaurant.txt;;
+        
+        # Employee Management
+        4) 
+            echo "Employee Management:"
+            echo "1. Add Employee"
+            echo "2. Remove Employee"
+            echo "3. View Employee List"
+            echo "4. Update Employee Details"
+            read -p "Choose an option: " emp_choice
+            case $emp_choice in
+                1)
+                    read -p "Enter employee name: " emp_name
+                    read -p "Enter employee role: " emp_role
+                    read -p "Enter employee salary: " emp_salary
+                    echo "$emp_name, $emp_role, $emp_salary" >> employees.txt
+                    echo "Employee added successfully."
+                    ;;
+                2)
+                    read -p "Enter employee name to remove: " emp_name
+                    sed -i "/$emp_name/d" employees.txt
+                    echo "Employee removed successfully."
+                    ;;
+                3)
+                    cat employees.txt
+                    ;;
+                4)
+                    read -p "Enter employee name to update: " emp_name
+                    grep -q "$emp_name" employees.txt && {
+                        read -p "Enter new role: " emp_role
+                        read -p "Enter new salary: " emp_salary
+                        sed -i "/$emp_name/c\\$emp_name, $emp_role, $emp_salary" employees.txt
+                        echo "Employee details updated successfully."
+                    } || echo "Employee not found."
+                    ;;
+                *) echo "Invalid choice";;
+            esac
+            ;;
+        
+        # Feedback Analysis
+        5)
+            echo "Feedback Analysis Options:"
+            echo "1. View all feedback"
+            echo "2. Search feedback by keyword"
+            echo "3. Count feedback entries"
+            read -p "Choose an option: " feedback_choice
+            case $feedback_choice in
+                1) cat feedback.txt;;
+                2)
+                    read -p "Enter keyword to search: " keyword
+                    grep -i "$keyword" feedback.txt || echo "No feedback found for '$keyword'."
+                    ;;
+                3) wc -l feedback.txt | awk '{print "Total Feedback Entries: " $1}';;
+                *) echo "Invalid choice";;
+            esac
+            ;;
+        
+        *) echo "Invalid choice";;
+    esac
+else
+    echo "Invalid password."
+fi
