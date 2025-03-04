@@ -5,7 +5,7 @@ Here it is an Shall Script based project. In 3rd year 1st semester in Operating 
 
 The Details description has giveen below of the project:
 
-Project Explanation (OS)
+Project Explanation(OS)
 
 Here's a line-by-line breakdown:
 
