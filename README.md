@@ -4,6 +4,9 @@
 
 ---
 
+![pic1](https://github.com/user-attachments/assets/e1b6eb75-e762-4fbc-865c-bbefeb45c0ff)
+
+
 ## 🚀 **Core Features**  
 ✅ **Interactive Order System**  
 - Dynamic menu with multi-size pricing (6/8/10/12-inch options)  
