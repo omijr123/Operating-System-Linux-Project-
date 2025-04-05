@@ -4,7 +4,8 @@
 
 ---
 
-![pic1](https://github.com/user-attachments/assets/e1b6eb75-e762-4fbc-865c-bbefeb45c0ff)
+![pic1](https://github.com/user-attachments/assets/01777008-d04f-47f5-b4b4-e039b90a57b5)
+
 
 
 ## 🚀 **Core Features**  
